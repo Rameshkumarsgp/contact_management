@@ -55,6 +55,9 @@ tasks.test {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+    reports {
+        xml.required = true
+    }
 }
 
 tasks.jacocoTestCoverageVerification {
@@ -64,6 +67,20 @@ tasks.jacocoTestCoverageVerification {
                 minimum = "0.75".toBigDecimal()
             }
         }
+    }
+}
+
+tasks.register("printCoverage") {
+    dependsOn(tasks.jacocoTestReport)
+    doLast {
+        val report = file("build/reports/jacoco/test/jacocoTestReport.xml")
+        val xml = report.readText()
+        val match = Regex("""<counter type="INSTRUCTION" missed="(\d+)" covered="(\d+)"/>""")
+            .findAll(xml).last()
+        val missed  = match.groupValues[1].toLong()
+        val covered = match.groupValues[2].toLong()
+        val pct     = covered.toDouble() / (missed + covered) * 100
+        println("📊 Coverage: ${"%.1f".format(pct)}%  (threshold: 75%)")
     }
 }
 

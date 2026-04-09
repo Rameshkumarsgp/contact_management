@@ -1,39 +1,57 @@
 #!/bin/sh
 
-echo "🚀 Running pre-push checks..."
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "   🚀 Pre-Commit Quality Gate"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-# Skip if no local changes
-if git diff --quiet HEAD; then
-  echo "No local changes detected, skipping checks."
+# Skip if no staged changes
+if git diff --cached --quiet; then
+  echo "⚠️  Nothing staged, skipping checks."
   exit 0
 fi
 
-# 1. Formatting check
-./gradlew spotlessCheck
+# 1. Formatting
+echo ""
+echo "⏳ [1/4] Checking code formatting..."
+./gradlew spotlessCheck -q
 if [ $? -ne 0 ]; then
-  echo "❌ Formatting failed. Run: ./gradlew spotlessApply"
+  echo "❌ [1/4] Formatting failed — run: ./gradlew spotlessApply"
   exit 1
 fi
+echo "✅ [1/4] Formatting OK"
 
-# 2. Tests
-./gradlew test
+# 2 + 3. Tests + Coverage (single Gradle call to avoid stale task state)
+echo ""
+echo "⏳ [2/4] Running tests..."
+./gradlew test -q
 if [ $? -ne 0 ]; then
-  echo "❌ Tests failed"
+  echo "❌ [2/4] Tests failed"
   exit 1
 fi
+echo "✅ [2/4] Tests passed"
 
-# 3. Coverage threshold
-./gradlew jacocoTestCoverageVerification
+echo ""
+echo "⏳ [3/4] Checking code coverage..."
+./gradlew printCoverage jacocoTestCoverageVerification -q
 if [ $? -ne 0 ]; then
-  echo "❌ Coverage threshold not met (minimum 75%)"
+  echo "❌ [3/4] Coverage below 75% threshold"
   exit 1
 fi
+echo "✅ [3/4] Coverage OK"
 
 # 4. Secret scan
+echo ""
+echo "⏳ [4/4] Scanning for secrets..."
 gitleaks protect --staged
 if [ $? -ne 0 ]; then
-  echo "❌ Secrets detected"
+  echo "❌ [4/4] Secrets detected — remove them before committing"
   exit 1
 fi
+echo "✅ [4/4] No secrets found"
 
-echo "✅ All checks passed. Pushing..."
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "   ✅ All checks passed. Committing..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
