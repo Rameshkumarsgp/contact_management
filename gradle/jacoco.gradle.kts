@@ -4,6 +4,9 @@ import org.gradle.testing.jacoco.tasks.JacocoReport
 
 tasks.named<Test>("test") {
     finalizedBy(tasks.named("jacocoTestReport"))
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
 }
 
 tasks.named<JacocoReport>("jacocoTestReport") {
@@ -20,6 +23,32 @@ tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
                 minimum = "0.75".toBigDecimal()
             }
         }
+    }
+}
+
+tasks.register("printTestResults") {
+    dependsOn(tasks.named("test"))
+    doLast {
+        val resultsDir = file("build/test-results/test")
+        resultsDir.walkTopDown()
+            .filter { it.name.startsWith("TEST-") && it.extension == "xml" }
+            .sortedBy { it.name }
+            .forEach { file ->
+                val xml = file.readText()
+                Regex("""<testcase[^>]+name="([^"]+)"[^>]+classname="([^"]+)"[^/]*/?>""")
+                    .findAll(xml)
+                    .forEach { match ->
+                        val name      = match.groupValues[1]
+                        val classname = match.groupValues[2].substringAfterLast(".")
+                        val block     = xml.substring(match.range.first).substringBefore("</testcase>")
+                        val icon = when {
+                            block.contains("<failure") || block.contains("<error") -> "❌"
+                            block.contains("<skipped") -> "⚠️ "
+                            else -> "✅"
+                        }
+                        println("  $icon $classname > $name")
+                    }
+            }
     }
 }
 
