@@ -2,6 +2,8 @@ plugins {
     id("java")
     id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
+    id("com.diffplug.spotless") version "6.25.0"
+    jacoco
 }
 
 group = "com.contacthub"
@@ -32,6 +34,44 @@ dependencies {
     testRuntimeOnly("com.h2database:h2")
 }
 
+tasks.register("installGitHooks") {
+    description = "Configures git to use .githooks/ so hooks are shared via the repo"
+    group = "setup"
+    doLast {
+        providers.exec { commandLine("git", "config", "core.hooksPath", ".githooks") }.result.get()
+        providers.exec { commandLine("chmod", "+x", ".githooks/pre-commit") }.result.get()
+        println("✅ Git hooks installed — .githooks/pre-commit is active")
+    }
+}
+
+tasks.build {
+    dependsOn("installGitHooks")
+}
+
 tasks.test {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.75".toBigDecimal()
+            }
+        }
+    }
+}
+
+spotless {
+    java {
+        eclipse()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }

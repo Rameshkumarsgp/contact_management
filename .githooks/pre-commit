@@ -1,0 +1,39 @@
+#!/bin/sh
+
+echo "🚀 Running pre-push checks..."
+
+# Skip if no local changes
+if git diff --quiet HEAD; then
+  echo "No local changes detected, skipping checks."
+  exit 0
+fi
+
+# 1. Formatting check
+./gradlew spotlessCheck
+if [ $? -ne 0 ]; then
+  echo "❌ Formatting failed. Run: ./gradlew spotlessApply"
+  exit 1
+fi
+
+# 2. Tests
+./gradlew test
+if [ $? -ne 0 ]; then
+  echo "❌ Tests failed"
+  exit 1
+fi
+
+# 3. Coverage threshold
+./gradlew jacocoTestCoverageVerification
+if [ $? -ne 0 ]; then
+  echo "❌ Coverage threshold not met (minimum 75%)"
+  exit 1
+fi
+
+# 4. Secret scan
+gitleaks protect --staged
+if [ $? -ne 0 ]; then
+  echo "❌ Secrets detected"
+  exit 1
+fi
+
+echo "✅ All checks passed. Pushing..."

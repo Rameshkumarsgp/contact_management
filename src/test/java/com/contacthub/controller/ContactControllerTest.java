@@ -23,20 +23,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(ContactController.class)
 class ContactControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @MockitoBean
-    private ContactService contactService;
+	@MockitoBean
+	private ContactService contactService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+	@Autowired
+	private ObjectMapper objectMapper;
 
-    @Nested
-    @DisplayName("POST /api/contacts")
-    class CreateContact {
+	@Nested
+	@DisplayName("POST /api/contacts")
+	class CreateContact {
 
-        @Test
+		@Test
         void createContact_returnsCreated() throws Exception {
             // given
             when(contactService.create(any(ContactRequest.class)))
@@ -53,73 +53,62 @@ class ContactControllerTest {
                     .andExpect(jsonPath("$.email").value("jane@example.com"));
         }
 
-        @Test
-        void createContact_returnsBadRequest_whenFirstNameMissing() throws Exception {
-            // given // when // then
-            mockMvc.perform(post("/api/contacts")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(
-                                    new ContactRequestBuilder().withFirstName(null).build())))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.firstName").value("First name is required"));
-        }
+		@Test
+		void createContact_returnsBadRequest_whenFirstNameMissing() throws Exception {
+			// given // when // then
+			mockMvc.perform(post("/api/contacts").contentType(MediaType.APPLICATION_JSON)
+					.content(objectMapper.writeValueAsString(new ContactRequestBuilder().withFirstName(null).build())))
+					.andExpect(status().isBadRequest())
+					.andExpect(jsonPath("$.firstName").value("First name is required"));
+		}
 
-        @Test
-        void createContact_returnsBadRequest_whenInvalidEmail() throws Exception {
-            // given // when // then
-            mockMvc.perform(post("/api/contacts")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(
-                                    new ContactRequestBuilder().withEmail("not-an-email").build())))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.email").value("Email must be a valid email address"));
-        }
-        //
-    }
+		@Test
+		void createContact_returnsBadRequest_whenInvalidEmail() throws Exception {
+			// given // when // then
+			mockMvc.perform(post("/api/contacts").contentType(MediaType.APPLICATION_JSON).content(
+					objectMapper.writeValueAsString(new ContactRequestBuilder().withEmail("not-an-email").build())))
+					.andExpect(status().isBadRequest())
+					.andExpect(jsonPath("$.email").value("Email must be a valid email address"));
+		}
+		//
+	}
 
-    @Nested
-    @DisplayName("GET /api/contacts")
-    class FetchContacts {
+	@Nested
+	@DisplayName("GET /api/contacts")
+	class FetchContacts {
 
-        @Test
-        void fetchContact_returnsOk_whenEmailExists() throws Exception {
-            // given
-            String email = "jane@example.com";
+		@Test
+		void fetchContact_returnsOk_whenEmailExists() throws Exception {
+			// given
+			String email = "jane@example.com";
 
-            when(contactService.fetch(email))
-                    .thenReturn(new ContactResponseBuilder().build());
+			when(contactService.fetch(email)).thenReturn(new ContactResponseBuilder().build());
 
-            // when // then
-            mockMvc.perform(get("/api/contacts")
-                            .param("email", email))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(1))
-                    .andExpect(jsonPath("$.firstName").value("Jane"))
-                    .andExpect(jsonPath("$.email").value(email));
-        }
+			// when // then
+			mockMvc.perform(get("/api/contacts").param("email", email)).andExpect(status().isOk())
+					.andExpect(jsonPath("$.id").value(1)).andExpect(jsonPath("$.firstName").value("Jane"))
+					.andExpect(jsonPath("$.email").value(email));
+		}
 
-        @Test
-        void fetchContact_returnsBadRequest_whenEmailParamMissing() throws Exception {
-            // given // when // then
-            mockMvc.perform(get("/api/contacts"))
-                    .andExpect(status().isBadRequest());
-        }
+		@Test
+		void fetchContact_returnsBadRequest_whenEmailParamMissing() throws Exception {
+			// given // when // then
+			mockMvc.perform(get("/api/contacts")).andExpect(status().isBadRequest());
+		}
 
-        @Test
-        void fetchContact_returnsBadRequest_whenInvalidEmail() throws Exception {
-            // given // when // then
-            mockMvc.perform(get("/api/contacts")
-                            .param("email", "not-an-email"))
-                    .andExpect(status().isBadRequest());
-        }
-        //
-    }
+		@Test
+		void fetchContact_returnsBadRequest_whenInvalidEmail() throws Exception {
+			// given // when // then
+			mockMvc.perform(get("/api/contacts").param("email", "not-an-email")).andExpect(status().isBadRequest());
+		}
+		//
+	}
 
-    @Nested
-    @DisplayName("PUT /api/contacts")
-    class UpdateContact {
+	@Nested
+	@DisplayName("PUT /api/contacts")
+	class UpdateContact {
 
-        @Test
+		@Test
         void updateContact_returnsOk_whenContactExists() throws Exception {
             // given
             when(contactService.update(any(ContactRequest.class)))
@@ -142,27 +131,23 @@ class ContactControllerTest {
                     .andExpect(jsonPath("$.street").value("456 New St"));
         }
 
-        @Test
-        void updateContact_returnsBadRequest_whenFirstNameMissing() throws Exception {
-            // given // when // then
-            mockMvc.perform(put("/api/contacts")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(
-                                    new ContactRequestBuilder().withFirstName(null).build())))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.firstName").value("First name is required"));
-        }
+		@Test
+		void updateContact_returnsBadRequest_whenFirstNameMissing() throws Exception {
+			// given // when // then
+			mockMvc.perform(put("/api/contacts").contentType(MediaType.APPLICATION_JSON)
+					.content(objectMapper.writeValueAsString(new ContactRequestBuilder().withFirstName(null).build())))
+					.andExpect(status().isBadRequest())
+					.andExpect(jsonPath("$.firstName").value("First name is required"));
+		}
 
-        @Test
-        void updateContact_returnsBadRequest_whenInvalidEmail() throws Exception {
-            // given // when // then
-            mockMvc.perform(put("/api/contacts")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(
-                                    new ContactRequestBuilder().withEmail("not-an-email").build())))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.email").value("Email must be a valid email address"));
-        }
-    }
-    //
+		@Test
+		void updateContact_returnsBadRequest_whenInvalidEmail() throws Exception {
+			// given // when // then
+			mockMvc.perform(put("/api/contacts").contentType(MediaType.APPLICATION_JSON).content(
+					objectMapper.writeValueAsString(new ContactRequestBuilder().withEmail("not-an-email").build())))
+					.andExpect(status().isBadRequest())
+					.andExpect(jsonPath("$.email").value("Email must be a valid email address"));
+		}
+	}
+	//
 }

@@ -15,44 +15,40 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(ContactController.class)
 class RequestResponseLoggingFilterTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @MockitoBean
-    private ContactService contactService;
+	@MockitoBean
+	private ContactService contactService;
 
-    @Test
-    void filter_doesNotBreakRequest_whenBodyIsValid() throws Exception {
-        String body = """
-                {
-                  "firstName": "Jane",
-                  "lastName": "Doe",
-                  "email": "jane@example.com",
-                  "phone": "0412345678",
-                  "street": "123 Main St",
-                  "city": "Sydney",
-                  "country": "Australia"
-                }
-                """;
+	@Test
+	void filter_doesNotBreakRequest_whenBodyIsValid() throws Exception {
+		String body = """
+				{
+				  "firstName": "Jane",
+				  "lastName": "Doe",
+				  "email": "jane@example.com",
+				  "phone": "0412345678",
+				  "street": "123 Main St",
+				  "city": "Sydney",
+				  "country": "Australia"
+				}
+				""";
 
-        mockMvc.perform(post("/api/contacts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isCreated()); // filter should not interfere with normal flow
-    }
+		mockMvc.perform(post("/api/contacts").contentType(MediaType.APPLICATION_JSON).content(body))
+				.andExpect(status().isCreated()); // filter should not interfere with normal flow
+	}
 
-    @Test
-    void filter_doesNotBreakRequest_whenBodyIsInvalid() throws Exception {
-        String body = """
-                {
-                  "lastName": "Doe",
-                  "email": "jane@example.com"
-                }
-                """;
+	@Test
+	void filter_doesNotBreakRequest_whenBodyIsInvalid() throws Exception {
+		String body = """
+				{
+				  "lastName": "Doe",
+				  "email": "jane@example.com"
+				}
+				""";
 
-        mockMvc.perform(post("/api/contacts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isBadRequest()); // missing firstName → 400, filter should not break this
-    }
+		mockMvc.perform(post("/api/contacts").contentType(MediaType.APPLICATION_JSON).content(body))
+				.andExpect(status().isBadRequest()); // missing firstName → 400, filter should not break this
+	}
 }

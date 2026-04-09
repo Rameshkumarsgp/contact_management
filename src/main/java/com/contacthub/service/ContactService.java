@@ -4,12 +4,12 @@ import com.contacthub.dto.ContactRequest;
 import com.contacthub.dto.ContactResponse;
 
 public interface ContactService {
-    //
-    ContactResponse create(ContactRequest request);
+	//
+	ContactResponse create(ContactRequest request);
 
-    ContactResponse fetch(String email);
+	ContactResponse fetch(String email);
 
-    ContactResponse update(ContactRequest request);
+	ContactResponse update(ContactRequest request);
 
-    //
+	//
 }
