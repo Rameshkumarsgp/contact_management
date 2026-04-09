@@ -9,5 +9,7 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
     //
     Optional<Contact> findByEmail(String email);
 
+    boolean existsByEmail(String email);
+
     //
 }

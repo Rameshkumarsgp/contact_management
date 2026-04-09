@@ -40,7 +40,7 @@ class ContactServiceImplTest {
                 "0412345678", "123 Main St", "Sydney", "Australia"
         );
 
-        when(contactRepository.findByEmail("jane@example.com")).thenReturn(Optional.empty());
+        when(contactRepository.existsByEmail("jane@example.com")).thenReturn(false);
         when(contactRepository.save(any(Contact.class))).thenAnswer(inv -> inv.getArgument(0));
 
         ContactResponse result = contactService.create(request);
@@ -57,8 +57,7 @@ class ContactServiceImplTest {
                 "0412345678", "123 Main St", "Sydney", "Australia"
         );
 
-        when(contactRepository.findByEmail("jane@example.com"))
-                .thenReturn(Optional.of(new Contact()));
+        when(contactRepository.existsByEmail("jane@example.com")).thenReturn(true);
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> contactService.create(request));

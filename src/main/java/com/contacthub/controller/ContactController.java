@@ -22,7 +22,9 @@ public class ContactController {
     }
 
     @PostMapping
-    public ResponseEntity<ContactResponse> create(@Valid @RequestBody ContactRequest request) {
+    public ResponseEntity<ContactResponse> create(
+            @Valid @RequestBody ContactRequest request
+    ) {
         //
         ContactResponse response = contactService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -30,9 +32,19 @@ public class ContactController {
 
     @GetMapping
     public ResponseEntity<ContactResponse> fetch(
-            @RequestParam @Email(message = "Email must be a valid email address") String email) {
+            @RequestParam @Email(message = "Email must be a valid email address") String email
+    ) {
         //
         ContactResponse response = contactService.fetch(email);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PutMapping
+    public ResponseEntity<ContactResponse> update(
+            @Valid @RequestBody ContactRequest request
+    ) {
+        //
+        ContactResponse response = contactService.update(request);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

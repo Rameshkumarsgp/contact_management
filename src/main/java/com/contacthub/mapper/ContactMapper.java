@@ -39,5 +39,14 @@ public class ContactMapper {
         //
     }
 
+    public void update(Contact existing, ContactRequest request) {
+        existing.setFirstName(request.firstName());
+        existing.setLastName(request.lastName());
+        existing.setPhone(request.phone());
+        existing.setStreet(request.street());
+        existing.setCity(request.city());
+        existing.setCountry(request.country());
+    }
+
     //
 }

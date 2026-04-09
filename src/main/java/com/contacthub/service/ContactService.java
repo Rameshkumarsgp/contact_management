@@ -9,5 +9,7 @@ public interface ContactService {
 
     ContactResponse fetch(String email);
 
+    ContactResponse update(ContactRequest request);
+
     //
 }

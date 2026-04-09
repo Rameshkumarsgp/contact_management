@@ -21,7 +21,7 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public ContactResponse create(ContactRequest request) {
         //
-        if (contactRepository.findByEmail(request.email()).isPresent()) {
+        if (contactRepository.existsByEmail(request.email())) {
             throw new IllegalArgumentException(
                     "A contact with this email already exists: " + request.email());
         }
@@ -38,6 +38,19 @@ public class ContactServiceImpl implements ContactService {
                 .map(contactMapper::toResponse)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "A contact with this email doesn't exist: " + email));
+    }
+
+    @Override
+    public ContactResponse update(ContactRequest request) {
+        //
+        var existing = contactRepository.findByEmail(request.email())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "A contact with this email doesn't exist: " + request.email()));
+
+        contactMapper.update(existing, request);
+        var saved = contactRepository.save(existing);
+        return contactMapper.toResponse(saved);
+        //
     }
 
     //
