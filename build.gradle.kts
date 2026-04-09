@@ -34,55 +34,12 @@ dependencies {
     testRuntimeOnly("com.h2database:h2")
 }
 
-tasks.register("installGitHooks") {
-    description = "Configures git to use .githooks/ so hooks are shared via the repo"
-    group = "setup"
-    doLast {
-        providers.exec { commandLine("git", "config", "core.hooksPath", ".githooks") }.result.get()
-        providers.exec { commandLine("chmod", "+x", ".githooks/pre-commit") }.result.get()
-        println("✅ Git hooks installed — .githooks/pre-commit is active")
-    }
-}
-
-tasks.build {
-    dependsOn("installGitHooks")
-}
-
 tasks.test {
     useJUnitPlatform()
-    finalizedBy(tasks.jacocoTestReport)
 }
 
-tasks.jacocoTestReport {
-    dependsOn(tasks.test)
-    reports {
-        xml.required = true
-    }
-}
-
-tasks.jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            limit {
-                minimum = "0.75".toBigDecimal()
-            }
-        }
-    }
-}
-
-tasks.register("printCoverage") {
-    dependsOn(tasks.jacocoTestReport)
-    doLast {
-        val report = file("build/reports/jacoco/test/jacocoTestReport.xml")
-        val xml = report.readText()
-        val match = Regex("""<counter type="INSTRUCTION" missed="(\d+)" covered="(\d+)"/>""")
-            .findAll(xml).last()
-        val missed  = match.groupValues[1].toLong()
-        val covered = match.groupValues[2].toLong()
-        val pct     = covered.toDouble() / (missed + covered) * 100
-        println("📊 Coverage: ${"%.1f".format(pct)}%  (threshold: 75%)")
-    }
-}
+apply(from = "gradle/hooks.gradle.kts")
+apply(from = "gradle/jacoco.gradle.kts")
 
 spotless {
     java {
