@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export GRADLE_OPTS="--enable-native-access=ALL-UNNAMED"
+
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "   🚀 Pre-Commit Quality Gate"
