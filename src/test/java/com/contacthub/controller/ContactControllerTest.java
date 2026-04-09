@@ -92,7 +92,7 @@ class ContactControllerTest {
     }
 
     @Nested
-    @DisplayName("GET /api/contacts")
+    @DisplayName("GET /api/contacts?emailId=")
     class FetchContact {
 
         @Test
