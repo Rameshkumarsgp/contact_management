@@ -1,0 +1,42 @@
+package com.contacthub.service.impl;
+
+import com.contacthub.dto.ContactRequest;
+import com.contacthub.dto.ContactResponse;
+import com.contacthub.mapper.ContactMapper;
+import com.contacthub.repository.ContactRepository;
+import com.contacthub.service.ContactService;
+import org.springframework.stereotype.Service;
+
+@Service
+public class ContactServiceImpl implements ContactService {
+
+    private final ContactRepository contactRepository;
+    private final ContactMapper contactMapper;
+
+    public ContactServiceImpl(ContactRepository contactRepository, ContactMapper contactMapper) {
+        this.contactRepository = contactRepository;
+        this.contactMapper = contactMapper;
+    }
+
+    @Override
+    public ContactResponse create(ContactRequest request) {
+        // Business rule: no duplicate emails
+        if (contactRepository.findByEmail(request.email()).isPresent()) {
+            throw new IllegalArgumentException("A contact with this email already exists: " + request.email());
+        }
+
+        var contact = contactMapper.toEntity(request);
+        var saved = contactRepository.save(contact);
+        return contactMapper.toResponse(saved);
+    }
+
+    @Override
+    public ContactResponse fetch(String emailId) {
+        //
+        return contactRepository.findByEmail(emailId)
+                .map(contactMapper::toResponse)
+                .orElseThrow(() -> new IllegalArgumentException("A contact with this email doesn't exist: " + emailId));
+    }
+
+    //
+}
