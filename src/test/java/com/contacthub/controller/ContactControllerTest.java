@@ -91,41 +91,38 @@ class ContactControllerTest {
         }
     }
 
-    @Nested
-    @DisplayName("GET /api/contacts")
-    class FetchContact {
+    // --- GET /api/contacts?emailId= ---
 
-        @Test
-        void fetchContact_returnsOk_whenEmailExists() throws Exception {
-            String emailId = "jane@example.com";
+    @Test
+    void fetchContact_returnsOk_whenEmailExists() throws Exception {
+        String emailId = "jane@example.com";
 
-            ContactResponse mockResponse = new ContactResponse(
-                    1L, "Jane", "Doe", emailId,
-                    "0412345678", "123 Main St", "Sydney", "Australia",
-                    LocalDateTime.now()
-            );
+        ContactResponse mockResponse = new ContactResponse(
+                1L, "Jane", "Doe", emailId,
+                "0412345678", "123 Main St", "Sydney", "Australia",
+                LocalDateTime.now()
+        );
 
-            when(contactService.fetch(emailId)).thenReturn(mockResponse);
+        when(contactService.fetch(emailId)).thenReturn(mockResponse);
 
-            mockMvc.perform(get("/api/contacts")
-                            .param("emailId", emailId))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(1))
-                    .andExpect(jsonPath("$.firstName").value("Jane"))
-                    .andExpect(jsonPath("$.email").value(emailId));
-        }
+        mockMvc.perform(get("/api/contacts")
+                        .param("emailId", emailId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.firstName").value("Jane"))
+                .andExpect(jsonPath("$.email").value(emailId));
+    }
 
-        @Test
-        void fetchContact_returnsBadRequest_whenEmailParamMissing() throws Exception {
-            mockMvc.perform(get("/api/contacts"))
-                    .andExpect(status().isBadRequest());
-        }
+    @Test
+    void fetchContact_returnsBadRequest_whenEmailParamMissing() throws Exception {
+        mockMvc.perform(get("/api/contacts"))
+                .andExpect(status().isBadRequest());
+    }
 
-        @Test
-        void fetchContact_returnsBadRequest_whenInvalidEmail() throws Exception {
-            mockMvc.perform(get("/api/contacts")
-                            .param("emailId", "not-an-email"))
-                    .andExpect(status().isBadRequest());
-        }
+    @Test
+    void fetchContact_returnsBadRequest_whenInvalidEmail() throws Exception {
+        mockMvc.perform(get("/api/contacts")
+                        .param("emailId", "not-an-email"))
+                .andExpect(status().isBadRequest());
     }
 }
