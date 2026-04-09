@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/contacts")
-@Validated  // Enables validation on method parameters (@Email, @NotBlank on @RequestParam)
+@Validated
 public class ContactController {
-
+    //
     private final ContactService contactService;
 
     public ContactController(ContactService contactService) {
@@ -23,15 +23,17 @@ public class ContactController {
 
     @PostMapping
     public ResponseEntity<ContactResponse> create(@Valid @RequestBody ContactRequest request) {
+        //
         ContactResponse response = contactService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
     public ResponseEntity<ContactResponse> fetch(
-            @RequestParam @Email(message = "Email must be a valid email address") String emailId) {
-        ContactResponse response = contactService.fetch(emailId);
-        return  ResponseEntity.status(HttpStatus.OK).body(response);
+            @RequestParam @Email(message = "Email must be a valid email address") String email) {
+        //
+        ContactResponse response = contactService.fetch(email);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     //

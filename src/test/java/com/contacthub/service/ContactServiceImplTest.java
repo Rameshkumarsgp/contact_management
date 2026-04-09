@@ -1,9 +1,9 @@
 package com.contacthub.service;
 
+import com.contacthub.domain.Contact;
 import com.contacthub.dto.ContactRequest;
 import com.contacthub.dto.ContactResponse;
 import com.contacthub.mapper.ContactMapper;
-import com.contacthub.model.Contact;
 import com.contacthub.repository.ContactRepository;
 import com.contacthub.service.impl.ContactServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,32 +70,32 @@ class ContactServiceImplTest {
 
     @Test
     void fetch_returnsResponse_whenEmailExists() {
-        String emailId = "jane@example.com";
+        String email = "jane@example.com";
 
         Contact contact = new Contact();
         contact.setFirstName("Jane");
         contact.setLastName("Doe");
-        contact.setEmail(emailId);
+        contact.setEmail(email);
         contact.setPhone("0412345678");
 
-        when(contactRepository.findByEmail(emailId)).thenReturn(Optional.of(contact));
+        when(contactRepository.findByEmail(email)).thenReturn(Optional.of(contact));
 
-        ContactResponse result = contactService.fetch(emailId);
+        ContactResponse result = contactService.fetch(email);
 
         assertNotNull(result);
         assertEquals("Jane", result.firstName());
         assertEquals("Doe", result.lastName());
-        assertEquals(emailId, result.email());
+        assertEquals(email, result.email());
         assertEquals("0412345678", result.phone());
     }
 
     @Test
     void fetch_throwsException_whenEmailNotFound() {
-        String emailId = "unknown@example.com";
+        String email = "unknown@example.com";
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> contactService.fetch(emailId));
+                () -> contactService.fetch(email));
 
-        assertEquals("A contact with this email doesn't exist: " + emailId, ex.getMessage());
+        assertEquals("A contact with this email doesn't exist: " + email, ex.getMessage());
     }
 }

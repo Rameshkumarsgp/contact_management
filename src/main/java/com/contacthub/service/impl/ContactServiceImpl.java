@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ContactServiceImpl implements ContactService {
-
+    //
     private final ContactRepository contactRepository;
     private final ContactMapper contactMapper;
 
@@ -20,9 +20,10 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public ContactResponse create(ContactRequest request) {
-        // Business rule: no duplicate emails
+        //
         if (contactRepository.findByEmail(request.email()).isPresent()) {
-            throw new IllegalArgumentException("A contact with this email already exists: " + request.email());
+            throw new IllegalArgumentException(
+                    "A contact with this email already exists: " + request.email());
         }
 
         var contact = contactMapper.toEntity(request);
@@ -31,11 +32,12 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public ContactResponse fetch(String emailId) {
+    public ContactResponse fetch(String email) {
         //
-        return contactRepository.findByEmail(emailId)
+        return contactRepository.findByEmail(email)
                 .map(contactMapper::toResponse)
-                .orElseThrow(() -> new IllegalArgumentException("A contact with this email doesn't exist: " + emailId));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "A contact with this email doesn't exist: " + email));
     }
 
     //
